@@ -1,4 +1,4 @@
-from enum import unique
+import argparse
 import sys; sys.path.append('../utils')
 import random
 import numpy as np
@@ -14,7 +14,7 @@ from sklearn.neighbors import kneighbors_graph as knn_graph
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import LabelEncoder
 
-def stratify_sampler(dist, y, n = 50):
+def stratify_sampler(dist, y, n = 50, exclude_yun = []):
 
     y = np.array(y)
 
@@ -23,6 +23,8 @@ def stratify_sampler(dist, y, n = 50):
     unique_loc = []
 
     for yun in yunique:
+        if yun in exclude_yun:
+            continue
         yun_args = np.argwhere(y == yun)
         unique_loc.append(list(yun_args))
 
@@ -57,7 +59,9 @@ def cluster_all():
 
     yhat = clustering.labels_
 
-    random_samp = stratify_sampler(dist, y, n = 25)
+    exclude_yun = []
+
+    random_samp = stratify_sampler(dist, y, n = 25, exclude_yun = exclude_yun)
     lenc = LabelEncoder()
     yordinal = lenc.fit_transform(np.array(y)[random_samp])
 
@@ -76,17 +80,17 @@ def cluster_all():
     G = nx.from_numpy_matrix(adj.toarray())
 
     cmap = plt.cm.viridis
-    rcParams['axes.prop_cycle'] = cycler(color=cmap(list(range(5))))
-    pos = nx.spring_layout(G)
-    nx.draw(G, pos = pos, node_color = yordinal, node_size = 200)
+    rcParams['axes.prop_cycle'] = cycler(color=cmap(list(range(5 - len(exclude_yun)))))
+    pos = nx.spring_layout(G, seed = S)
+    nx.draw(G, pos = pos, node_color = yordinal, node_size = 150)
     #nx.draw_networkx_labels(G, pos, labels = y)
 
     cust = [
-        Line2D([0], [0], marker = 'o', color = cmap(i/4), label = lenc.classes_[i]) \
-            for i in range(5)
+        Line2D([0], [0], marker = 'o', color = cmap(i/(4 - len(exclude_yun))), label = lenc.classes_[i] , markersize = 15) \
+            for i in range(5 - len(exclude_yun))
     ]
 
-    plt.legend(handles = cust)
+    plt.legend(handles = cust, fontsize = 18)
     plt.show()
 
     # G = nx.from_numpy_matrix(adj_samp)
@@ -98,4 +102,9 @@ def cluster_all():
     # Overlay with spectral labels:
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--s', type = int, default = 0)
+    args = parser.parse_args()
+    S = args.s
+    random.seed(S)
     cluster_all()
