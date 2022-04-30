@@ -14,9 +14,14 @@ mat, y, mapper = get_onehot(meta)
 le = LabelEncoder()
 yord = le.fit_transform(y)
 
-pca = PCA(n_components = 2)
-pca = fit(mat)
+pca = PCA()
+pca.fit(mat)
 
-evar = np.cumsum(pca.explained_variance_)
+evar = sorted(pca.explained_variance_)
+
+cum_evar = np.cumsum(evar)
 plt.plot(evar)
+plt.ylabel('Pct. Explained Variance')
+plt.xlabel('Components')
+plt.title('Mash Sketch PCA - Poplar')
 plt.show()

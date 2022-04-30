@@ -20,6 +20,9 @@ def get_pairwise_lookup():
 def get_loc_metadata():
     return pd.read_csv('../all_classes.txt', sep = '\t')
 
+def get_climate():
+    return pd.read_csv('../climate.txt', sep = '\t')
+
 def make_distance_matrix(ylist):
 
     lookup = get_pairwise_lookup()

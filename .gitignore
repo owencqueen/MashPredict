@@ -1,1 +1,3 @@
 pairwise_dist.txt
+*.DS_Store
+*__pycache__*

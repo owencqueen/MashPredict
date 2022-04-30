@@ -16,6 +16,8 @@ def get_onehot(meta, yname = 'Full_class', path = owen_path):
     gkey = meta['Geno']
 
     dist, ymask = make_distance_matrix(gkey.tolist())
+    ymask = np.array(ymask)
+    ymask &= ~np.isnan(y.to_numpy())
     # Mask everything:
     gkey = gkey.loc[ymask].tolist()
     y = y.iloc[list(np.nonzero(ymask)[0])].tolist()
