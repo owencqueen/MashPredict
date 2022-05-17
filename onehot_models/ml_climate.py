@@ -12,8 +12,8 @@ from sklearn.decomposition import PCA
 
 #meta = get_loc_metadata()
 meta = get_climate()
-#mat, y, mapper = get_onehot(meta, path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
-mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp')
+mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp', path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
+#mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp')
 
 
 # def run_model():
@@ -26,7 +26,7 @@ mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp')
 
 def run_pca_model():
 
-    pca = PCA(n_components = 100)
+    pca = PCA(n_components = 50)
     mat_reduce = pca.fit_transform(mat)
 
     mat_reduce, newy = shuffle(mat_reduce, y)
