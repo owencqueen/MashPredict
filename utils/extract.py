@@ -23,6 +23,10 @@ def get_loc_metadata():
 def get_climate():
     return pd.read_csv('../climate.txt', sep = '\t')
 
+def get_full_meta():
+    # Will have genotypes in index
+    return pd.read_csv('../all_meta.csv', sep = '\t', index_col = 0)
+
 def make_distance_matrix(ylist):
 
     lookup = get_pairwise_lookup()

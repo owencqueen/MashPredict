@@ -17,13 +17,10 @@ def get_onehot(meta, yname = 'Full_class', path = owen_path):
 
     dist, ymask = make_distance_matrix(gkey.tolist())
     ymask = np.array(ymask)
-    ymask &= ~np.isnan(y.to_numpy())
+    ymask &= ~np.isnan(y.to_numpy()) # Mask out those that are NaN
     # Mask everything:
     gkey = gkey.loc[ymask].tolist()
     y = y.iloc[list(np.nonzero(ymask)[0])].tolist()
-
-    print('len gkey', len(gkey))
-    print('len y', len(y))
 
     filtermat = np.empty((len(y), mat.shape[0]))
 
