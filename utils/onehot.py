@@ -4,7 +4,7 @@ from extract import *
 
 # Change this path if you want to run it:
 owen_path = '/Users/owenqueen/Desktop/bioinformatics/poplar/MashPredict/poplar_onehot.txt'
-def get_onehot(meta, yname = 'Full_class', path = owen_path):
+def get_onehot(meta, yname = 'Full_class', path = owen_path, regression = True):
     df = pd.read_csv(path, sep = '\t')
     mat = df.to_numpy()
 
@@ -13,11 +13,12 @@ def get_onehot(meta, yname = 'Full_class', path = owen_path):
     mapper = {cnames[i]:i for i in range(len(cnames))}
 
     y = meta[yname]
-    gkey = meta['Geno']
+    gkey = meta['Geno'] if ('Geno' in meta.columns) else pd.Series(meta.index)
 
     dist, ymask = make_distance_matrix(gkey.tolist())
     ymask = np.array(ymask)
-    ymask &= ~np.isnan(y.to_numpy()) # Mask out those that are NaN
+    if regression:
+        ymask &= ~np.isnan(y.to_numpy()) # Mask out those that are NaN
     # Mask everything:
     gkey = gkey.loc[ymask].tolist()
     y = y.iloc[list(np.nonzero(ymask)[0])].tolist()

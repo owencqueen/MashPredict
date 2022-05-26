@@ -10,6 +10,8 @@ from sample import EPS_sample_mask
 
 from sklearn.ensemble import RandomForestRegressor as RF
 from sklearn.ensemble import GradientBoostingRegressor as XGB
+from sklearn.ensemble import RandomForestClassifier as RF_class
+from sklearn.ensemble import GradientBoostingClassifier as XGB_class
 from sklearn.linear_model import Lasso as Lasso
 from sklearn.linear_model import ElasticNet as ElasticNet
 from sklearn.decomposition import PCA
@@ -23,6 +25,11 @@ models_dict = {
     'RF': RF,
     'Lasso': Lasso,
     'XGB': XGB
+}
+
+models_class_dict = {
+    'RF': RF_class,
+    'XGB': XGB_class
 }
 
 # Hyperparameters:
@@ -78,22 +85,25 @@ def get_dist_y(meta, target, EPS_bounds = None):
     y = meta_masked.loc[:,target]
 
     if EPS_bounds is not None:
-        print(EPS_bounds)
+        #print(EPS_bounds)
         mask, _, _ = EPS_sample_mask(meta_masked, target, float(EPS_bounds[0]), float(EPS_bounds[1]))
         y = y.loc[mask]
         dist = dist[np.nonzero(mask)[0],:][:,np.nonzero(mask)[0]]
 
     return dist, y
 
-def get_OH_y(meta, target, EPS_bounds = None):
+def get_OH_y(meta, target, EPS_bounds = None, regression = True):
     get_OH = partial(get_onehot, 
         meta = meta,
         path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
 
-    X, y, mapper = get_OH(yname = target)
+    X, y, mapper = get_OH(yname = target, regression = regression)
 
     if EPS_bounds is not None:
         pass
+
+    if not regression:
+        y = LabelEncoder().fit_transform(y)
 
     return X, y
 
@@ -106,10 +116,14 @@ def fit_eval_model_gsearch(mat, y, mapper, mname):
     params = clf.best_params_
     return score, params
 
-def fit_eval_model_CV(mat, y, mname):
-    est = models_dict[mname]()
+def fit_eval_model_CV(mat, y, mname, regression = True):
+    if regression:
+        est = models_dict[mname]()
+    else:
+        est = models_class_dict[mname]()
+    metric = 'r2' if regression else 'accuracy'
     score = cross_val_score(est, X = mat, y = y, 
-        scoring = 'r2', n_jobs = 5,
+        scoring = metric, n_jobs = 5,
         verbose = 3)
     return np.mean(score)
 
@@ -129,13 +143,15 @@ def gsearch_screen_OH():
 
 def plain_screen_OH(EPS_bounds = None):
     meta, targets = get_metadata()
+    targets = targets[-2:]
     df = pd.DataFrame(index = targets, columns = list(models_dict.keys()))
 
     for targ in targets:
-        X, y = get_OH_y(meta, targ, EPS_bounds = EPS_bounds)
+        X, y = get_OH_y(meta, targ, EPS_bounds = EPS_bounds, regression = (targ != 'Full_class'))
         X = PCA(n_components=50).fit_transform(X)
-        for m in models_dict.keys():
-            score = fit_eval_model_CV(X, y, m)
+        iterator = (models_dict.keys() if targ != 'Full_class' else models_class_dict.keys())
+        for m in iterator:
+            score = fit_eval_model_CV(X, y, m, (targ != 'Full_class'))
             print(f'Model : {m} \t Target: {targ} \t Score: {score}')
             df.loc[targ, m] = score
 
@@ -206,7 +222,7 @@ if __name__ == '__main__':
     group.add_argument('--dist', action = 'store_true', help = 'Run distance')
     parser.add_argument('--gsearch', action = 'store_true', help = 'Runs grid search')
     parser.add_argument('--EPS', nargs = 2, default = None, help = 'Bounds in [0,1] for EPS, in order. Ex: "--EPS 0.25 0.75"')
-    parser.add_argument('--target_file', type = str, help = 'Output file name for screening results')
+    parser.add_argument('--target_file', type = str, default = 'trial.csv', help = 'Output file name for screening results')
     parser.add_argument('--exclude_columbia', action = 'store_true', help = 'If included, exclude Columbia group')
 
     args = parser.parse_args()
@@ -215,7 +231,8 @@ if __name__ == '__main__':
         print('Running screen over k values even if args.gsearch is false')
 
     if args.OH and (not args.dist): # Default to below if args.dist provided
-        pass
+        df = plain_screen_OH(EPS_bounds = args.EPS)
+        df.to_csv(args.target_file)
     else: # Assume dist if OH not provided
         df = screen_dist(args.EPS)
         df.to_csv(args.target_file)
