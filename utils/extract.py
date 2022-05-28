@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from tqdm import trange, tqdm
 
+pca_path = '/data1/compbio/oqueen/poplar/MashPredict/aligned_pca_noinland.txt'
+
 def get_pairwise_lookup():
     df = pd.read_csv('../pairwise_dist.txt', sep = '\t', 
         names = ['GENO1', 'GENO2', 'MASH', 'p', 'other'])
@@ -56,6 +58,28 @@ def make_distance_matrix(ylist):
 
     return pairwise, ymask
 
+def get_aligned_PCA(meta, yname = 'Full_class', path = pca_path, regression = True):
+    X = pd.read_csv(pca_path, sep = '\t', index_col = 0)
+
+    # Make mask:
+    ymask = meta.loc[:,yname].notna()
+    sintersect = list(set(meta.index[ymask]).intersection(set(X.index)))
+    #Xmask = [X.index[i] in sindx for i in range(X.shape[0])]
+
+    # print(X.shape)
+    # print(sum(mask))
+
+    # print(X.loc[mask,:].shape)
+    # print(meta.loc[ymask,yname].shape)
+
+    Xselect = np.array([X.loc[s,:].to_numpy() for s in sintersect])
+    yselect = np.array([meta.loc[s,yname] for s in sintersect])
+
+    print(Xselect.shape)
+    print(yselect.shape)
+
+    return Xselect, yselect
+    
 if __name__ == '__main__':
     # get_pairwise_lookup()
     # get_loc_metadata()

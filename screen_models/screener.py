@@ -107,6 +107,21 @@ def get_OH_y(meta, target, EPS_bounds = None, regression = True):
 
     return X, y
 
+def get_aligned_y(meta, target, EPS_bounds = None, regression = True):
+    get_PCA = partial(get_aligned_PCA, 
+        meta = meta,
+        path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
+
+    X, y = get_PCA(yname = target, regression = regression)
+
+    if EPS_bounds is not None:
+        pass
+
+    if not regression:
+        y = LabelEncoder().fit_transform(y)
+
+    return X, y
+
 def fit_eval_model_gsearch(mat, y, mapper, mname):
     clf = GridSearchCV(models_dict[mname](), 
         params_dict[mname], scoring = 'r2',
@@ -143,12 +158,27 @@ def gsearch_screen_OH():
 
 def plain_screen_OH(EPS_bounds = None):
     meta, targets = get_metadata()
-    targets = targets[-2:]
+    #targets = targets[-2:]
     df = pd.DataFrame(index = targets, columns = list(models_dict.keys()))
 
     for targ in targets:
         X, y = get_OH_y(meta, targ, EPS_bounds = EPS_bounds, regression = (targ != 'Full_class'))
         X = PCA(n_components=50).fit_transform(X)
+        iterator = (models_dict.keys() if targ != 'Full_class' else models_class_dict.keys())
+        for m in iterator:
+            score = fit_eval_model_CV(X, y, m, (targ != 'Full_class'))
+            print(f'Model : {m} \t Target: {targ} \t Score: {score}')
+            df.loc[targ, m] = score
+
+    return df
+
+def plain_screen_aligned(EPS_bounds = None):
+    meta, targets = get_metadata()
+    #targets = targets[-2:]
+    df = pd.DataFrame(index = targets, columns = list(models_dict.keys()))
+
+    for targ in targets:
+        X, y = get_aligned_y(meta, targ, EPS_bounds = EPS_bounds, regression = (targ != 'Full_class'))
         iterator = (models_dict.keys() if targ != 'Full_class' else models_class_dict.keys())
         for m in iterator:
             score = fit_eval_model_CV(X, y, m, (targ != 'Full_class'))
@@ -220,7 +250,7 @@ if __name__ == '__main__':
 
     group.add_argument('--OH', action = 'store_true', help = 'Run one-hot')
     group.add_argument('--dist', action = 'store_true', help = 'Run distance')
-    parser.add_argument('--gsearch', action = 'store_true', help = 'Runs grid search')
+    group.add_argument('--aligned', action = 'store_true', help = 'Run aligned PCA')
     parser.add_argument('--EPS', nargs = 2, default = None, help = 'Bounds in [0,1] for EPS, in order. Ex: "--EPS 0.25 0.75"')
     parser.add_argument('--target_file', type = str, default = 'trial.csv', help = 'Output file name for screening results')
     parser.add_argument('--exclude_columbia', action = 'store_true', help = 'If included, exclude Columbia group')
@@ -230,8 +260,11 @@ if __name__ == '__main__':
     if (args.dist):
         print('Running screen over k values even if args.gsearch is false')
 
-    if args.OH and (not args.dist): # Default to below if args.dist provided
+    if args.OH:
         df = plain_screen_OH(EPS_bounds = args.EPS)
+        df.to_csv(args.target_file)
+    elif args.aligned:
+        df = plain_screen_aligned(EPS_bounds = args.EPS)
         df.to_csv(args.target_file)
     else: # Assume dist if OH not provided
         df = screen_dist(args.EPS)
