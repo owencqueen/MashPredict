@@ -4,6 +4,7 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
+# Shows only scores of models trained on binary representations
 
 df = pd.read_csv('screen_scores.csv', index_col=0)
 

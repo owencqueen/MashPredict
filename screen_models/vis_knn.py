@@ -4,8 +4,10 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
+# Shows only KNN scores
 
-df = pd.read_csv('test.csv', index_col=0)
+
+df = pd.read_csv('screen_dist.csv', index_col=0)
 df = df.iloc[:,1:]
 
 avg = [-1.0 * np.mean(df.iloc[i,:]) for i in range(df.shape[0])]
