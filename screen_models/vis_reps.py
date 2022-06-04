@@ -12,6 +12,9 @@ aligned = pd.read_csv('aligned.csv', index_col = 0)
 
 def get_max_scores(df):
     arr = df.to_numpy()
+    arr = np.nan_to_num(arr)
+    print(arr)
+    print('max', arr.max(axis=1))
     return arr.max(axis=1)
 
 df = pd.DataFrame(

@@ -6,7 +6,6 @@ import numpy as np
 
 # Shows only KNN scores
 
-
 df = pd.read_csv('screen_dist.csv', index_col=0)
 df = df.iloc[:,1:]
 
