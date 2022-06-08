@@ -6,9 +6,9 @@ import numpy as np
 
 # Build df, use code below
 # Feeds in the csv files
-onehot = pd.read_csv('screen_scores.csv', index_col=0)
-dist = pd.read_csv('screen_dist.csv', index_col = 0)
-aligned = pd.read_csv('aligned.csv', index_col = 0)
+onehot = pd.read_csv('onehot_try2.csv', index_col=0)
+dist = pd.read_csv('dist_latlong_res.csv', index_col = 0)
+aligned = pd.read_csv('aligned_latlong_res.csv', index_col = 0)
 
 def get_max_scores(df):
     arr = df.to_numpy()
@@ -19,10 +19,10 @@ def get_max_scores(df):
 
 df = pd.DataFrame(
     {
-        'Sketch Binary': get_max_scores(onehot), 
-        'Mash Dist.': dist.loc[:,'score'], 
+        'One Hot': get_max_scores(onehot),
+        'Pairwise Dist.': dist.loc[:,'score'],
         'Aligned PCA': get_max_scores(aligned)
-    }, 
+    },
     index = onehot.index)
 
 df = df.sort_values(by = 'Aligned PCA', ascending=False)
@@ -38,6 +38,6 @@ for i in range(df.shape[1]):
 plt.xticks((xbase + 0.15 * (df.shape[0] / 2)) - 1, labels = list(df.index), rotation = 'vertical')
 plt.ylim([-1.5, np.max(df.to_numpy()) * 1.05])
 plt.legend()
-plt.ylabel('$R^2$ / Accuracy')
+plt.ylabel('$R^2$')
 plt.tight_layout()
 plt.show()

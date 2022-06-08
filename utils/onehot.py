@@ -3,8 +3,8 @@ import pandas as pd
 from extract import *
 
 # Change this path if you want to run it:
-owen_path = '/Users/owenqueen/Desktop/bioinformatics/poplar/MashPredict/poplar_onehot.txt'
-def get_onehot(meta, yname = 'Full_class', path = owen_path, regression = True):
+owen_path = '../data/poplar_onehot.txt'
+def get_onehot(meta, yname = 'Latitude', path = owen_path, regression = True):
     df = pd.read_csv(path, sep = '\t')
     mat = df.to_numpy()
 

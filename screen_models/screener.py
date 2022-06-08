@@ -61,9 +61,9 @@ params_dict = {
 def OH():
     meta = get_full_meta()
 
-    get_OH = partial(get_onehot, 
+    get_OH = partial(get_onehot,
         meta = meta,
-        path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
+        path = '../data/poplar_onehot.txt')
 
     targets = list(meta.columns)
 
@@ -93,9 +93,9 @@ def get_dist_y(meta, target, EPS_bounds = None):
     return dist, y
 
 def get_OH_y(meta, target, EPS_bounds = None, regression = True):
-    get_OH = partial(get_onehot, 
+    get_OH = partial(get_onehot,
         meta = meta,
-        path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
+        path = '../../data/poplar_onehot.txt')
 
     X, y, mapper = get_OH(yname = target, regression = regression)
 
@@ -108,9 +108,9 @@ def get_OH_y(meta, target, EPS_bounds = None, regression = True):
     return X, y
 
 def get_aligned_y(meta, target, EPS_bounds = None, regression = True):
-    get_PCA = partial(get_aligned_PCA, 
+    get_PCA = partial(get_aligned_PCA,
         meta = meta,
-        path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
+        path = '../../data/poplar_onehot.txt')
 
     X, y = get_PCA(yname = target, regression = regression)
 
@@ -123,7 +123,7 @@ def get_aligned_y(meta, target, EPS_bounds = None, regression = True):
     return X, y
 
 def fit_eval_model_gsearch(mat, y, mapper, mname):
-    clf = GridSearchCV(models_dict[mname](), 
+    clf = GridSearchCV(models_dict[mname](),
         params_dict[mname], scoring = 'r2',
         n_jobs = 5, verbose = 3)
     clf.fit(mat, y)
@@ -137,7 +137,7 @@ def fit_eval_model_CV(mat, y, mname, regression = True):
     else:
         est = models_class_dict[mname]()
     metric = 'r2' if regression else 'accuracy'
-    score = cross_val_score(est, X = mat, y = y, 
+    score = cross_val_score(est, X = mat, y = y,
         scoring = metric, n_jobs = 5,
         verbose = 3)
     return np.mean(score)
@@ -199,7 +199,7 @@ def val_over_k(dist, y, regression = False):
             est = KNeighborsRegressor(n_neighbors=k,
                 metric = 'precomputed')
 
-            score = cross_val_score(est, 
+            score = cross_val_score(est,
                 X = dist,
                 y = y,
                 scoring = 'r2',
@@ -210,7 +210,7 @@ def val_over_k(dist, y, regression = False):
             est = KNeighborsClassifier(n_neighbors=k,
                 metric = 'precomputed')
 
-            score = cross_val_score(est, 
+            score = cross_val_score(est,
                 X = dist,
                 y = LabelEncoder().fit_transform(y),
                 scoring = 'accuracy',
@@ -232,7 +232,7 @@ def screen_dist(EPS_bounds = None):
 
         dist, y = get_dist_y(meta, targ, EPS_bounds = EPS_bounds)
 
-        score, k = val_over_k(dist, y, 
+        score, k = val_over_k(dist, y,
             regression = (targ != 'Full_class'))
 
         print(f'K : {k} \t Target: {targ} \t Score: {score}')
@@ -273,4 +273,4 @@ if __name__ == '__main__':
 
 
     # df = plain_screen()
-    # df.to_csv('screen_scores.csv') 
+    # df.to_csv('screen_scores.csv')

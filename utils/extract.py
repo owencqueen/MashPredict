@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 from tqdm import trange, tqdm
 
-pca_path = '/data1/compbio/oqueen/poplar/MashPredict/aligned_pca_noinland.txt'
+pca_path = '../../data/aligned_pca_noinland.txt'
 
 def get_pairwise_lookup():
-    df = pd.read_csv('../pairwise_dist.txt', sep = '\t', 
+    df = pd.read_csv('../../data/pairwise_dist.txt', sep = '\t',
         names = ['GENO1', 'GENO2', 'MASH', 'p', 'other'])
 
     # Create lookup
@@ -79,12 +79,12 @@ def get_aligned_PCA(meta, yname = 'Full_class', path = pca_path, regression = Tr
     print(yselect.shape)
 
     return Xselect, yselect
-    
+
 if __name__ == '__main__':
     # get_pairwise_lookup()
     # get_loc_metadata()
     meta = get_loc_metadata()
-    y = meta['Full_class']
+    y = meta['Latitude']
     ykey = meta['Geno'].tolist()
     dist, ymask = make_distance_matrix(ykey)
 
