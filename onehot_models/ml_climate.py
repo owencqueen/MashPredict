@@ -11,8 +11,10 @@ from sklearn.utils import shuffle
 from sklearn.decomposition import PCA
 
 #meta = get_loc_metadata()
+path = '/Users/owenqueen/Desktop/bioinformatics/poplar/MashPredict/poplar_onehot.txt'
+#path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt'
 meta = get_climate()
-mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp', path = '/data1/compbio/oqueen/poplar/MashPredict/poplar_onehot.txt')
+mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp', path = path)
 #mat, y, mapper = get_onehot(meta, yname = 'Mean_Temp')
 
 

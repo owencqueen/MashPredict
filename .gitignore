@@ -2,3 +2,4 @@ pairwise_dist.txt
 *.DS_Store
 *__pycache__*
 poplar_onehot.txt
+onehot_s4000.txt
