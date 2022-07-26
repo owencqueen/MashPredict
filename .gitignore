@@ -3,3 +3,4 @@ pairwise_dist.txt
 *__pycache__*
 poplar_onehot.txt
 onehot_s4000.txt
+*.pyc
