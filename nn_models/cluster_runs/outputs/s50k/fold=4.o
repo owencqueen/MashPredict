@@ -1,0 +1,23 @@
+Epoch 0: Loss = 93.7691 	 Val score = 197.1582
+Epoch 50: Loss = 0.6025 	 Val score = 61.4808
+Epoch 100: Loss = 0.3456 	 Val score = 53.3658
+Epoch 150: Loss = 1.9144 	 Val score = 48.3019
+Epoch 200: Loss = 0.2360 	 Val score = 44.7601
+Epoch 250: Loss = 0.3556 	 Val score = 38.6771
+Epoch 300: Loss = 0.1475 	 Val score = 32.7933
+Epoch 350: Loss = 0.2589 	 Val score = 34.0129
+Epoch 400: Loss = 0.3611 	 Val score = 35.1661
+Epoch 450: Loss = 0.2974 	 Val score = 28.7928
+Epoch 500: Loss = 3.4043 	 Val score = 64.0318
+Epoch 00506: reducing learning rate of group 0 to 1.0000e-03.
+Epoch 550: Loss = 0.2036 	 Val score = 30.5900
+Epoch 00557: reducing learning rate of group 0 to 1.0000e-04.
+Epoch 600: Loss = 0.1256 	 Val score = 30.4344
+Epoch 00608: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 650: Loss = 0.1323 	 Val score = 29.8032
+Epoch 00659: reducing learning rate of group 0 to 1.0000e-06.
+Epoch 700: Loss = 0.2149 	 Val score = 29.7794
+Epoch 00710: reducing learning rate of group 0 to 1.0000e-07.
+Epoch 750: Loss = 0.1268 	 Val score = 29.7732
+Epoch 00761: reducing learning rate of group 0 to 1.0000e-08.
+Split 1: Score = 47.2769, Lat = 33.4946, Lon = 26.8105
