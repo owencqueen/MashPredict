@@ -4,8 +4,8 @@ from tqdm import trange, tqdm
 
 pca_path = '../../data/aligned_pca_noinland.txt'
 
-def get_pairwise_lookup():
-    df = pd.read_csv('../../data/pairwise_dist.txt', sep = '\t',
+def get_pairwise_lookup(path = '../../data/pairwise_dist.txt'):
+    df = pd.read_csv(path, sep = '\t',
         names = ['GENO1', 'GENO2', 'MASH', 'p', 'other'])
 
     # Create lookup
@@ -29,9 +29,9 @@ def get_full_meta():
     # Will have genotypes in index
     return pd.read_csv('../all_meta.csv', sep = '\t', index_col = 0)
 
-def make_distance_matrix(ylist):
+def make_distance_matrix(ylist, data_path):
 
-    lookup = get_pairwise_lookup()
+    lookup = get_pairwise_lookup(data_path)
     num_y = len(ylist)
 
     lookup_inds = {k:i for i, k in enumerate(ylist)}

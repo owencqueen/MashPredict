@@ -1,6 +1,6 @@
 base="/lustre/isaac/scratch/oqueen/MashPredict/nn_models/cluster_runs"
 
-mylist=(0 10 20 30 40)
+mylist=(10 20 30 40)
 
 for i in ${mylist[@]};
     do
