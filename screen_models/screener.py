@@ -63,7 +63,7 @@ def OH():
 
     get_OH = partial(get_onehot,
         meta = meta,
-        path = '../data/poplar_onehot.txt')
+        path = '../data/onehot_s4000.txt')
 
     targets = list(meta.columns)
 
@@ -95,7 +95,7 @@ def get_dist_y(meta, target, EPS_bounds = None):
 def get_OH_y(meta, target, EPS_bounds = None, regression = True):
     get_OH = partial(get_onehot,
         meta = meta,
-        path = '../../data/poplar_onehot.txt')
+        path = '../../data/onehot_s4000.txt')
 
     X, y, mapper = get_OH(yname = target, regression = regression)
 
@@ -110,7 +110,7 @@ def get_OH_y(meta, target, EPS_bounds = None, regression = True):
 def get_aligned_y(meta, target, EPS_bounds = None, regression = True):
     get_PCA = partial(get_aligned_PCA,
         meta = meta,
-        path = '../../data/poplar_onehot.txt')
+        path = '../../data/onehot_s4000.txt')
 
     X, y = get_PCA(yname = target, regression = regression)
 

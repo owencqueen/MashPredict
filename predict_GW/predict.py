@@ -51,7 +51,12 @@ def process_aligned():
         labels_pca= pd.merge(lat_labels, df, on='Geno')
 
         # Select GW samples
-        test= labels_pca[labels_pca['Geno'].str.match('GW')]
+        #test= labels_pca[labels_pca['Geno'].str.match('GW')]
+
+        # Or, drop GW and predict on known labels
+        labels_pca= labels_pca[labels_pca['Geno'].str.match('^(?!["GW"])')]
+        test= labels_pca.sample(n=150)
+
 
         # Select all non-GW samples
         df_dup= pd.concat([labels_pca, test])
@@ -100,7 +105,7 @@ def predict():
     #print(metadata)
 
     gws = pd.DataFrame({'Prediction': yPred, 'Metadata': ytest.to_numpy()}, index = GWsamples)
-    gws.to_csv('predicted_GW_aligned.csv')
+    gws.to_csv('predicted_known_aligned.csv')
 
     #print(scores)
 

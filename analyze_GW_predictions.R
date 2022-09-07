@@ -16,20 +16,20 @@ theme_set(cai_theme)
 
 # Load data and compute difference
 lat_pred<- read.csv("predict_GW/predicted_GW_aligned.csv")
-lat_pred <- lat_pred %>% mutate(Diff= abs(Prediction - Metadata)) %>% arrange(desc(Diff))
+lat_pred <- lat_pred %>% mutate(Diff= Prediction - Metadata) %>% arrange(desc(Diff))
 
 # Summarize distributions
-lat_pred %>% summary()
+lat_pred  %>% filter(Diff> -1 & Diff < 1) %>%summary()
 
 # Faceted view of both latitude types
 lat_pred %>% pivot_longer(cols = c(Prediction, Metadata), names_to= "Type", values_to= "Latitude" ) %>%
   ggplot(aes(Latitude)) + geom_histogram(binwidth = 0.05, fill="skyblue") + facet_grid("Type") + ylab("Count") +
-  ggtitle("Latitude Distributions for Two Label Types")
+  ggtitle("Latitude Distributions for Two Label Types", subtitle= "Predicted for High Confidence Labels")
 
 # Visualize difference
 lat_pred %>% ggplot(aes(Diff)) + geom_histogram(binwidth=0.05, fill="red3") + ylab("Count") + 
-  xlab("Abs. Difference between Prediction and Existing Label") + ggtitle("Distribution of Differences") +
-  geom_vline(xintercept=0.5785)
+  xlab("Difference between Prediction and Existing Label") + ggtitle("Distribution of Differences", subtitle="GW Labels") +
+  geom_vline(xintercept=0.41)
 
 #####
 #
@@ -38,7 +38,7 @@ lat_pred %>% ggplot(aes(Diff)) + geom_histogram(binwidth=0.05, fill="red3") + yl
 #####
 
 # Inspect samples with large difference
-outliers<- lat_pred %>% filter(Diff> 2) %>% pull(Geno)
+outliers<- lat_pred %>% filter(Diff> 1) %>% pull(Geno)
 
 # Load PCA obj
 pca<- readRDS("../../bio_findings/data/aug2021/pca/pca_noInland.RDS")
@@ -63,7 +63,7 @@ samples<- meta %>%
 samples<- inner_join(meta, tab)
 
 # Save dataframe
-write.table(samples, "../data/meta_pca_1254.csv", sep="\t", quote = F, row.names = F)
+#write.table(samples, "../data/meta_pca_1254.csv", sep="\t", quote = F, row.names = F)
 
 # Find outliers
 outliers<- samples %>% filter(Geno %in% outliers)
@@ -78,7 +78,7 @@ samples %>%
   geom_point() +
   ylab("PC2 (1.1% Var Explained)") +
   xlab("PC1 (2.5% Var Explained)") +
-  ggtitle("WGS PCA", subtitle="Willamette Samples") +
+  ggtitle("WGS PCA", subtitle="High Confidence Label Outliers") +
   geom_point(data=nonGW_will, aes(PC1, PC2), color="red") +
   geom_point(data=GW_will, aes(PC1, PC2), color="skyblue") +
   geom_point(data=newNeigh, aes(PC1, PC2), color="lightgreen") 
