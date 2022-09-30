@@ -12,11 +12,13 @@ from sklearn.linear_model import ElasticNet
 from sklearn.model_selection import cross_val_score, KFold, train_test_split
 from sklearn.preprocessing import StandardScaler
 
+from geopy.distance import geodesic
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # lr = 0.001, weight_decay = 0.01
 default_opt_kwargs = {
-    'lr': 0.01,
+    'lr': 0.001,
     'weight_decay': 0.01
 }
 
@@ -69,7 +71,7 @@ def xgboost_predict():
     plt.scatter(meta['Longitude'], meta['Latitude'])
     plt.show()
 
-class MashNet(torch.nn.Module):
+class MashNet_ORG(torch.nn.Module):
     def __init__(self, input_size):
         super(MashNet, self).__init__()
         # self.net = torch.nn.Sequential(
@@ -95,6 +97,52 @@ class MashNet(torch.nn.Module):
             torch.nn.ELU(),
             torch.nn.Linear(128, 2)
         )
+    def forward(self, x):
+        pred = self.net(x)
+        # Transform based on range
+        # lat = pred[:,0].sigmoid() * (60 - 30) + 30 
+        # lon = -1.0 * (pred[:,1].sigmoid() * (135 - 90) + 90)
+        lat = pred[:,0]
+        lon = pred[:,1]
+        return {'lat': lat, 'long': lon}
+
+class MashNet(torch.nn.Module):
+    def __init__(self, input_size):
+        super(MashNet, self).__init__()
+        # self.net = torch.nn.Sequential(
+        #     torch.nn.BatchNorm1d(input_size, track_running_stats = False),
+        #     torch.nn.Linear(input_size, 128),
+        #     torch.nn.ELU(),
+        #     torch.nn.Linear(128, 32),
+        #     torch.nn.ELU(),
+        #     torch.nn.Linear(32, 2),
+        #     torch.nn.ELU(),
+        #     torch.nn.Linear(2, 2)
+        # )
+        self.net = torch.nn.Sequential(
+            torch.nn.BatchNorm1d(input_size, track_running_stats = False),
+            torch.nn.Linear(input_size, 64),
+            torch.nn.LayerNorm(64),
+            torch.nn.ELU(),
+            # torch.nn.Dropout(0.3),
+            # torch.nn.Linear(64, 64),
+            # torch.nn.LayerNorm(64),
+            # torch.nn.ELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(64, 64),
+            torch.nn.LayerNorm(64),
+            torch.nn.ELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(64, 64),
+            torch.nn.LayerNorm(64),
+            torch.nn.ELU(),
+            torch.nn.Dropout(0.2),
+            torch.nn.Linear(64, 2)
+        )
+
+        # self.long_net = torch.nn.Linear(64, 1)
+        # self.lat_net = torch.nn.Linear(64, 1)
+
     def forward(self, x):
         pred = self.net(x)
         # Transform based on range
@@ -189,7 +237,7 @@ def train_mashnet_w_val(x, ylat, ylon, ss_lat = None, ss_lon = None, epochs = 50
         val_loss, _, _ = eval_mashnet(model, x_val, ylat_val, ylon_val, ss_lat = ss_lat, ss_lon = ss_lon,
                 get_predictions = False)
 
-        scheduler.step(val_loss)
+        #scheduler.step(val_loss)
 
         if val_loss < best_val_score:
             # Save best results:
@@ -234,9 +282,15 @@ def eval_mashnet(model, x, lat, lon, ss_lat = None, ss_lon = None, get_predictio
         return gt, pred
 
     # Approximate measure of kilometer error:
-    mean_loss = torch.mean(((pred - gt) * 111.139).pow(2).sum(dim=0).sqrt()).item()
-    mean_lat_dist = torch.mean((torch.abs(pred - gt)[0,:] * 111.139)).item()
-    mean_lon_dist = torch.mean((torch.abs(pred - gt)[1,:] * 111.139)).item()
+    # mean_loss = torch.mean(((pred - gt) * 111.139).pow(2).sum(dim=0).sqrt()).item()
+    gt = gt.detach().clone().cpu().numpy()
+    pred = pred.detach().clone().cpu().numpy()
+    # print('gt', gt.shape)
+    # print('pred', pred.shape)
+    mean_loss = np.mean(np.sqrt([geodesic(gt[:,i], pred[:,i]).km ** 2 for i in range(gt.shape[1])]))
+    mean_lat_dist, mean_lon_dist = 0, 0
+    # mean_lat_dist = torch.mean((torch.abs(pred - gt)[0,:] * 111.139)).item()
+    # mean_lon_dist = torch.mean((torch.abs(pred - gt)[1,:] * 111.139)).item()
 
     return mean_loss, mean_lat_dist, mean_lon_dist
 
@@ -281,6 +335,7 @@ def cross_validate(standard_scale_ll = False):
 
 def cross_validate_screen(
         standard_scale_ll = False, 
+        standard_scale_input = False,
         n_splits = 5, 
         random_state = None,
         epochs = 800,
@@ -310,6 +365,13 @@ def cross_validate_screen(
     for train_idx, test_idx in kf.split(X):
         Xtrain, lattrain, lontrain = X[train_idx], lat[train_idx], lon[train_idx]
         Xtest, lattest, lontest = X[test_idx], lat[test_idx], lon[test_idx]
+
+        if standard_scale_input:
+            ss_inp = StandardScaler()
+            ss_inp.fit(Xtrain)
+            Xtrain = ss_inp.transform(Xtrain)
+            Xtest = ss_inp.transform(Xtest)
+
 
         if standard_scale_ll: # Standard scale latitude and longitude
             lattrain, lattest = lattrain.reshape(-1, 1), lattest.reshape(-1, 1)
@@ -348,7 +410,8 @@ def cross_validate_screen(
 
 if __name__ == '__main__':
     #cross_validate(standard_scale_ll = True)
-    pred_gt, _, _, _ = cross_validate_screen(standard_scale_ll = True)
+    pred_gt, _, _, _ = cross_validate_screen(standard_scale_ll = True, standard_scale_input = False,
+        data_path = '../data/onehot_s4000.txt')
     print('pred gt len', len(pred_gt))
     #xgboost_predict()
 

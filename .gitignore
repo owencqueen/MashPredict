@@ -6,3 +6,6 @@ onehot_s4000.txt
 *.pyc
 data/
 nn_models/*split=*.pt
+tars/
+*/cluster_runs/*
+*.pt
