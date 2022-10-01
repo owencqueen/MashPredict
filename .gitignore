@@ -7,5 +7,6 @@ onehot_s4000.txt
 data/
 nn_models/*split=*.pt
 tars/
+screen_models/
 */cluster_runs/*
 *.pt
