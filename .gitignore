@@ -4,7 +4,7 @@ pairwise_dist.txt
 poplar_onehot.txt
 onehot_s4000.txt
 *.pyc
-data/
+data/*.txt
 nn_models/*split=*.pt
 tars/
 screen_models/
