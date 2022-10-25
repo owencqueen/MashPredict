@@ -23,4 +23,4 @@ All experiments are facilitated through Python scripts:
 
 ## Data Availability
 
-All SRA codes are available in the [SRA_keys.txt](https://github.com/owencqueen/MashPredict/blob/main/SRA_keys.txt). A link to the FigShare for precomputed Mash sketches will be shared after deanonymizing the repository.
+All SRA codes are available in the [SRA_keys.txt](https://github.com/owencqueen/MashPredict/blob/main/SRA_keys.txt). Precomputed Mash sketches at the sketch sizes specified in the paper are provided in the `data` directory within the GitHub as tar files.
