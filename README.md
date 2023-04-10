@@ -1,5 +1,5 @@
 # Deep Learning for Unaligned Geolocation of Poplar Trees
-Predicting locations of poplar trees from whole genome sequences using Mash sketches, accepted to AI for Science Workshop at NeurIPS 2022. You can find the paper here: https://arxiv.org/abs/2301.13387.
+Predicting locations of poplar trees from whole genome sequences using Mash sketches, accepted to [AI for Science Workshop](https://ai4sciencecommunity.github.io/neurips22.html) at NeurIPS 2022. You can find the paper here: https://arxiv.org/abs/2301.13387.
 
 <img src="https://github.com/owencqueen/MashPredict/blob/main/maps.png" width="500" height="500">
 
